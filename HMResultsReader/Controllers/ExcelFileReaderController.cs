@@ -42,15 +42,9 @@ namespace HMResultsReader.Controllers
             headers.Add("Benchmark");
             headers.Add("Dimensions");
             headers.Add("Iterations");
-            headers.Add("Harmony Memory Iteration");
-            headers.Add("Min Search Range");
-            headers.Add("Max Search Range");
-            headers.Add("Adjustment Rate");
-            headers.Add("Harmony Memory Size");
-            headers.Add("Acceptance Rate");
-            headers.Add("Best Result Static");
-            headers.Add("Best Result Static Min");
-            headers.Add("Best Result Static Mean");
+            headers.Add("Best");
+            headers.Add("Average");
+            headers.Add("STD DEV");
             newDocument.Add(headers);
 
             using (var stream = new MemoryStream()) {
@@ -61,21 +55,34 @@ namespace HMResultsReader.Controllers
                     var worksheet = workbook.Worksheets.First();
                     
                     var rows = worksheet.Rows().Skip(1);
+                    var rowIndex = 1;
+                    var lastBestResultRowNumber = request.LastBestResultRowNumber;
+                    var bestResults = new List<double>();
+                    var testNumber = 0;
                     foreach (var row in rows) {
-                        var currentRow = new List<string>();
-                        currentRow.Add(row.Cell(1).Value.ToString());
-                        currentRow.Add(row.Cell(2).Value.ToString());
-                        currentRow.Add(row.Cell(3).Value.ToString());
-                        currentRow.Add(row.Cell(4).Value.ToString());
-                        currentRow.Add(row.Cell(5).Value.ToString());
-                        currentRow.Add(row.Cell(6).Value.ToString());
-                        currentRow.Add(row.Cell(7).Value.ToString());
-                        currentRow.Add(row.Cell(8).Value.ToString());
-                        currentRow.Add(row.Cell(9).Value.ToString());
-                        currentRow.Add(row.Cell(10).Value.ToString());
-                        currentRow.Add(row.Cell(11).Value.ToString());
-                        currentRow.Add(row.Cell(12).Value.ToString());
-                        newDocument.Add(currentRow);
+                        rowIndex++;
+
+                        if (rowIndex == lastBestResultRowNumber)
+                        {
+                            lastBestResultRowNumber += 20;
+                            testNumber++;
+                            var currentRow = new List<string>();
+                            currentRow.Add(row.Cell(1).Value.ToString());//Benchmark
+                            currentRow.Add(row.Cell(5).Value.ToString());//Dimensions
+                            currentRow.Add(row.Cell(3).Value.ToString());//Iterations
+                            currentRow.Add(row.Cell(11).Value.ToString());//Best Results
+                            bestResults.Add(row.Cell(11).Value.GetNumber());
+                            if (testNumber == 30) {
+
+                                double average = bestResults.Average();
+                                currentRow.Add(average.ToString());
+
+                                double desviacionEstandar = Math.Sqrt(bestResults.Select(v => Math.Pow(v - average, 2)).Average());
+
+                                currentRow.Add(desviacionEstandar.ToString());
+                            }
+                            newDocument.Add(currentRow);
+                        }
                     }
                 }
             }
