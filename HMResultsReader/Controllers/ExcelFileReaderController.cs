@@ -70,8 +70,8 @@ namespace HMResultsReader.Controllers
                             currentRow.Add(row.Cell(1).Value.ToString());//Benchmark
                             currentRow.Add(row.Cell(5).Value.ToString());//Dimensions
                             currentRow.Add(row.Cell(3).Value.ToString());//Iterations
-                            currentRow.Add(row.Cell(11).Value.ToString());//Best Results
-                            bestResults.Add(row.Cell(11).Value.GetNumber());
+                            currentRow.Add(row.Cell(12).Value.ToString());//Best Results
+                            bestResults.Add(row.Cell(12).Value.GetNumber());
                             if (testNumber == 30) {
 
                                 double average = bestResults.Average();
